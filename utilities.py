@@ -45,3 +45,49 @@ def scalings( datasets ):
         datasets[counter] = scaling( set )
         counter = counter + 1
     return ( datasets[counter] for counter in range(0, len(datasets)) )
+
+
+def data_augmentation():
+
+    dfxvalues = pd.read_csv( 'train_gesture_x.csv', header = None, dtype = 'float64' )
+    dfyvalues = pd.read_csv( 'train_gesture_y.csv', header = None, dtype = 'float64' )
+    dfzvalues = pd.read_csv( 'train_gesture_z.csv', header = None, dtype = 'float64' )
+    dflabels  = pd.read_csv( 'train_label.csv', header = None, dtype = 'float64' )
+
+    inversion_grid = {  'left' :            [ 3.0, 2.0 ],
+                        'right' :           [ 2.0, 3.0 ],
+                        'up' :              [ 4.0, 5.0 ],
+                        'down' :            [ 5.0, 4.0 ],
+                        'circle left' :     [ 7.0, 6.0 ],
+                        'circle right' :    [ 6.0, 7.0 ] }
+
+    newdataset_x = []
+    newdataset_y = []
+    newdataset_z = []
+    newlabels = []
+
+    for gesture in inversion_grid :
+        indexes = dflabels.index[ dflabels.iloc[:,-1] == inversion_grid[gesture][0] ].tolist()
+
+        for i in indexes :
+            newlabel = [ inversion_grid[gesture][1] ]
+            newlabels.append( newlabel )
+
+            newrowx = list( reversed( dfxvalues.iloc[i,:].tolist() ) )
+            newdataset_x.append( newrowx )
+
+            newrowy = list( reversed( dfyvalues.iloc[i,:].tolist() ) )
+            newdataset_y.append( newrowy )
+
+            newrowz = list( reversed( dfzvalues.iloc[i,:].tolist() ) )
+            newdataset_z.append( newrowz )
+    
+    newdataset = [ newdataset_x, newdataset_y, newdataset_z]
+    newdataset = np.dstack( newdataset )
+    newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
+
+    #print( newdataset)
+    #print( newlabels )
+    
+    return newdataset, newlabels
+

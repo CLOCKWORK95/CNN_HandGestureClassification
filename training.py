@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.regularizers import l2
 from sklearn.model_selection import KFold, StratifiedKFold
-from utilities import csv_readnstack, csv_to_onehot, scalings
-from models import BigJohn, LittleJohn, JohnnyBoy, tuning_model
+from utilities import csv_readnstack, csv_to_onehot, scalings, data_augmentation
+from models import BigJohn, HyperBigJohn, LittleJohn, JohnnyBoy, tuning_model
 import pandas as pd
 import numpy as np
 
@@ -42,7 +42,7 @@ def main() :
     train_set_values, val_set_values, test_set_values = scalings( datasets )
 
     # Creazione e Compilazione del Modello CNN
-    model = BigJohn( input_shape )
+    model = HyperBigJohn( input_shape )
 
     # Setting per l'Early Stopping
     callback = tf.keras.callbacks.EarlyStopping(
@@ -113,8 +113,6 @@ def data_augmentation():
     #print( newlabels )
     
     return newdataset, newlabels
-
-
 
 
 
