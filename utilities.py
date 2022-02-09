@@ -15,7 +15,7 @@ def csv_readnstack( paths ) :
     dataset = []
     count = 0
     for path in paths :
-        df = pd.read_csv( path )
+        df = pd.read_csv( path, header = None, dtype = 'float64' )
         df.fillna( method='ffill', axis='index' )
         dataset.append( df.values )
         count = count + 1
@@ -24,7 +24,7 @@ def csv_readnstack( paths ) :
 
 def csv_to_onehot( path ) :
     # @params : csv file pathname
-    labels = pd.read_csv( path )
+    labels = pd.read_csv( path, header = None, dtype = 'float64' )
     labels = labels.values
     n_classes = len( np.unique(labels) )
     labels = tf.keras.utils.to_categorical( labels, num_classes = n_classes )

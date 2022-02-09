@@ -7,7 +7,8 @@ from tensorflow.python.keras.regularizers import l2
 from sklearn.model_selection import KFold, StratifiedKFold
 from utilities import csv_readnstack, csv_to_onehot, scalings
 from models import BigJohn, LittleJohn, tuning_model
-
+import pandas as pd
+import numpy as np
 
 def main() :
 
@@ -61,5 +62,54 @@ def main() :
     plt.show()
 
 
+
+def data_augmentation():
+
+    dfxvalues = pd.read_csv( 'train_gesture_x.csv', header = None, dtype = 'float64' )
+    dfyvalues = pd.read_csv( 'train_gesture_y.csv', header = None, dtype = 'float64' )
+    dfzvalues = pd.read_csv( 'train_gesture_z.csv', header = None, dtype = 'float64' )
+    dflabels  = pd.read_csv( 'train_label.csv', header = None, dtype = 'float64' )
+
+    inversion_grid = {  'left' :            [ 3.0, 2.0 ],
+                        'right' :           [ 2.0, 3.0 ],
+                        'up' :              [ 4.0, 5.0 ],
+                        'down' :            [ 5.0, 4.0 ],
+                        'circle left' :     [ 7.0, 6.0 ],
+                        'circle right' :    [ 6.0, 7.0 ] }
+
+    newdataset_x = []
+    newdataset_y = []
+    newdataset_z = []
+    newlabels = []
+
+    for gesture in inversion_grid :
+        indexes = dflabels.index[ dflabels.iloc[:,-1] == gesture[0] ].tolist()
+        for i in indexes :
+            newlabel = [ gesture[1] ], newlabels.append( newlabel )
+
+            newrowx = dfxvalues[i,:].reverse()
+            newdataset_x.append( newrowx )
+
+            newrowy = dfyvalues[i,:].reverse()
+            newdataset_y.append( newrowy )
+
+            newrowz = dfzvalues[i,:].reverse()
+            newdataset_z.append( newrowz )
+    
+    newdataset = [ newdataset_x, newdataset_y, newdataset_z]
+    newdataset = np.dstack( newdataset )
+    newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
+
+    print( newdataset.shape )
+    print( newlabels.shape )
+    
+    return newdataset, newlabels
+
+
+
+
+
+
 if __name__ == '__main__':
-    main()
+    #main()
+    data_augmentation()
