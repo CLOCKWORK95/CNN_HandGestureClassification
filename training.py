@@ -108,14 +108,9 @@ def data_augmentation():
     newdataset = [ newdataset_x, newdataset_y, newdataset_z]
     newdataset = np.dstack( newdataset )
     newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
-
-    #print( newdataset)
-    #print( newlabels )
     
     return newdataset, newlabels
 
 
-
 if __name__ == '__main__':
     main()
-    #data_augmentation()
