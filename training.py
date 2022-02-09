@@ -55,7 +55,7 @@ def main() :
     history = model.fit(train_set_values, train_set_labels, validation_data = (val_set_values,val_set_labels),
                         batch_size = 256, epochs = 300, verbose = 1, callbacks = [callback] )
 
-    # Valutazione del Modello sull'insieme di Test
+    # Valutazione del Modello sull'insieme di Test 
     performance = model.evaluate( test_set_values, test_set_labels, verbose = 0 )
     model.save("MLModel" + str(performance[0]) + ".h5", True, True)
     print( "Validation performance" )
