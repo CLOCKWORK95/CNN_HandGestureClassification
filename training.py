@@ -10,7 +10,6 @@ from models import BigJohn, HyperBigJohn, LittleJohn, JohnnyBoy, tuning_model
 import pandas as pd
 import numpy as np
 
-
 def main() :
 
     dataset_values = csv_readnstack( [ "train_gesture_x.csv", "train_gesture_y.csv", "train_gesture_z.csv" ] )
@@ -25,19 +24,19 @@ def main() :
     print( dataset_labels.shape )
 
     # Split del Dataset in Training Set e Test Set
-    train_set_values, test_set_values, train_set_labels, test_set_labels = train_test_split( dataset_values,
-                                                                                            dataset_labels,
-                                                                                            test_size = .3,
+    train_set_values, test_set_values, train_set_labels, test_set_labels = train_test_split( dataset_values, 
+                                                                                            dataset_labels, 
+                                                                                            test_size = .3, 
                                                                                             shuffle = True )
     # Input Shape settings ( dimensione vettore, numero di canali )
     input_shape = ( train_set_values.shape[1], train_set_values.shape[2] )
 
 
     # Split del Training Set in Training Set e Validation Set
-    train_set_values, val_set_values, train_set_labels, val_set_labels = train_test_split(  train_set_values,
-                                                                                            train_set_labels,
-                                                                                            test_size = .25,
-                                                                                            shuffle = True )
+    train_set_values, val_set_values, train_set_labels, val_set_labels = train_test_split(  train_set_values, 
+                                                                                            train_set_labels, 
+                                                                                            test_size = .25, 
+                                                                                            shuffle = True )          
     # Scaling dei dati di input secondo la regola Robust Scaling
     datasets = [ train_set_values, val_set_values, test_set_values ]
     train_set_values, val_set_values, test_set_values = scalings( datasets )
@@ -57,9 +56,10 @@ def main() :
 
     # Valutazione del Modello sull'insieme di Test
     performance = model.evaluate( test_set_values, test_set_labels, verbose = 0 )
-    model.save("MLModel" + str(performance[0]) + ".h5", True, True)
     print( "Validation performance" )
     print( performance )
+
+    model.save("MLModel" + str(performance[0]) + ".h5", True, True)
 
     # Plot dei risultati sulla loss
     plt.plot(history.history['loss'])
@@ -71,47 +71,6 @@ def main() :
     plt.show()
 
 
-def data_augmentation():
-
-    dfxvalues = pd.read_csv( 'train_gesture_x.csv', header = None, dtype = 'float64' )
-    dfyvalues = pd.read_csv( 'train_gesture_y.csv', header = None, dtype = 'float64' )
-    dfzvalues = pd.read_csv( 'train_gesture_z.csv', header = None, dtype = 'float64' )
-    dflabels  = pd.read_csv( 'train_label.csv', header = None, dtype = 'float64' )
-
-    inversion_grid = {  'left' :            [ 3.0, 2.0 ],
-                        'right' :           [ 2.0, 3.0 ],
-                        'up' :              [ 4.0, 5.0 ],
-                        'down' :            [ 5.0, 4.0 ],
-                        'circle left' :     [ 7.0, 6.0 ],
-                        'circle right' :    [ 6.0, 7.0 ] }
-
-    newdataset_x = []
-    newdataset_y = []
-    newdataset_z = []
-    newlabels = []
-
-    for gesture in inversion_grid :
-        indexes = dflabels.index[ dflabels.iloc[:,-1] == inversion_grid[gesture][0] ].tolist()
-
-        for i in indexes :
-            newlabel = [ inversion_grid[gesture][1] ]
-            newlabels.append( newlabel )
-
-            newrowx = list( reversed( dfxvalues.iloc[i,:].tolist() ) )
-            newdataset_x.append( newrowx )
-
-            newrowy = list( reversed( dfyvalues.iloc[i,:].tolist() ) )
-            newdataset_y.append( newrowy )
-
-            newrowz = list( reversed( dfzvalues.iloc[i,:].tolist() ) )
-            newdataset_z.append( newrowz )
-
-    newdataset = [ newdataset_x, newdataset_y, newdataset_z]
-    newdataset = np.dstack( newdataset )
-    newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
-
-    return newdataset, newlabels
-
-
 if __name__ == '__main__':
     main()
+    #data_augmentation()
