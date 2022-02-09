@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.regularizers import l2
 from sklearn.model_selection import KFold, StratifiedKFold
 from utilities import csv_readnstack, csv_to_onehot, scalings
-from models import BigJohn, LittleJohn, tuning_model
+from models import BigJohn, LittleJohn, JohnnyBoy, tuning_model
 import pandas as pd
 import numpy as np
 
@@ -16,10 +16,17 @@ def main() :
     dataset_labels = csv_to_onehot( "train_label.csv" )
     n_classes = 8
 
+    # Concatazione di nuove entries al dataset ottenute tramite Data Augmentation
+    augmentation_values, augmentation_labels = data_augmentation()
+    dataset_values = np.vstack( (dataset_values, augmentation_values) )
+    dataset_labels = np.vstack( (dataset_labels, augmentation_labels) )
+    print( dataset_values.shape )
+    print( dataset_labels.shape )
+
     # Split del Dataset in Training Set e Test Set
     train_set_values, test_set_values, train_set_labels, test_set_labels = train_test_split( dataset_values, 
                                                                                             dataset_labels, 
-                                                                                            test_size = .2, 
+                                                                                            test_size = .3, 
                                                                                             shuffle = True )
     # Input Shape settings ( dimensione vettore, numero di canali )
     input_shape = ( train_set_values.shape[1], train_set_values.shape[2] )
@@ -28,14 +35,14 @@ def main() :
     # Split del Training Set in Training Set e Validation Set
     train_set_values, val_set_values, train_set_labels, val_set_labels = train_test_split(  train_set_values, 
                                                                                             train_set_labels, 
-                                                                                            test_size = .2, 
+                                                                                            test_size = .25, 
                                                                                             shuffle = True )          
     # Scaling dei dati di input secondo la regola Robust Scaling
     datasets = [ train_set_values, val_set_values, test_set_values ]
     train_set_values, val_set_values, test_set_values = scalings( datasets )
 
     # Creazione e Compilazione del Modello CNN
-    model = LittleJohn( input_shape )
+    model = BigJohn( input_shape )
 
     # Setting per l'Early Stopping
     callback = tf.keras.callbacks.EarlyStopping(
@@ -83,25 +90,27 @@ def data_augmentation():
     newlabels = []
 
     for gesture in inversion_grid :
-        indexes = dflabels.index[ dflabels.iloc[:,-1] == gesture[0] ].tolist()
-        for i in indexes :
-            newlabel = [ gesture[1] ], newlabels.append( newlabel )
+        indexes = dflabels.index[ dflabels.iloc[:,-1] == inversion_grid[gesture][0] ].tolist()
 
-            newrowx = dfxvalues[i,:].reverse()
+        for i in indexes :
+            newlabel = [ inversion_grid[gesture][1] ]
+            newlabels.append( newlabel )
+
+            newrowx = list( reversed( dfxvalues.iloc[i,:].tolist() ) )
             newdataset_x.append( newrowx )
 
-            newrowy = dfyvalues[i,:].reverse()
+            newrowy = list( reversed( dfyvalues.iloc[i,:].tolist() ) )
             newdataset_y.append( newrowy )
 
-            newrowz = dfzvalues[i,:].reverse()
+            newrowz = list( reversed( dfzvalues.iloc[i,:].tolist() ) )
             newdataset_z.append( newrowz )
     
     newdataset = [ newdataset_x, newdataset_y, newdataset_z]
     newdataset = np.dstack( newdataset )
     newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
 
-    print( newdataset.shape )
-    print( newlabels.shape )
+    #print( newdataset)
+    #print( newlabels )
     
     return newdataset, newlabels
 
@@ -109,7 +118,6 @@ def data_augmentation():
 
 
 
-
 if __name__ == '__main__':
-    #main()
-    data_augmentation()
+    main()
+    #data_augmentation()
