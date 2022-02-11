@@ -43,7 +43,7 @@ def tuning_model( neurons, exponent, ksize, numf, act, input_shape ) :
     return model
 
 
-def BigJohn( input_shape ) :
+def cvBigJohn( input_shape ) :
 
     # Creazione del Modello CNN
 
@@ -83,7 +83,8 @@ def BigJohn( input_shape ) :
     return model
 
 
-def HyperBigJohn( input_shape ) :
+
+def BigJohn( input_shape ) :
 
     # Creazione del Modello CNN
 
@@ -100,17 +101,17 @@ def HyperBigJohn( input_shape ) :
 
     model.add(tf.keras.layers.Flatten())
 
-    model.add(tf.keras.layers.Dense(    512, kernel_initializer = tf.keras.initializers.GlorotNormal() ,activation='tanh', 
+    model.add(tf.keras.layers.Dense(    512, kernel_initializer = tf.keras.initializers.HeNormal() ,activation='relu', 
                                         kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
     model.add(tf.keras.layers.Dropout(.2))
     model.add(tf.keras.layers.BatchNormalization())
 
-    model.add(tf.keras.layers.Dense(    128, kernel_initializer = tf.keras.initializers.GlorotNormal() ,activation = 'tanh', 
+    model.add(tf.keras.layers.Dense(    128, kernel_initializer = tf.keras.initializers.HeNormal() ,activation = 'relu', 
                                         kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
-    model.add(tf.keras.layers.Dropout(.15)) 
+    model.add(tf.keras.layers.Dropout(.1)) 
     model.add(tf.keras.layers.BatchNormalization())
 
-    model.add(tf.keras.layers.Dense(    64, kernel_initializer = tf.keras.initializers.GlorotNormal() ,activation = 'tanh', 
+    model.add(tf.keras.layers.Dense(    64, kernel_initializer = tf.keras.initializers.HeNormal() ,activation = 'relu', 
                                         kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
 
     model.add(tf.keras.layers.Dense( 8 , activation = 'softmax',  kernel_regularizer = tf.keras.regularizers.l2(1.e-4) ))
@@ -120,7 +121,9 @@ def HyperBigJohn( input_shape ) :
     opt = tf.keras.optimizers.Adam()
     model.compile( optimizer = opt, loss = "categorical_crossentropy", metrics = ['accuracy'] )
 
-    return model
+    name = 'BigJohn'
+
+    return model, name
 
 
 def LittleJohn( input_shape ) :
@@ -152,7 +155,9 @@ def LittleJohn( input_shape ) :
     opt = tf.keras.optimizers.Adam()
     model.compile( optimizer = opt, loss = "categorical_crossentropy", metrics = ['accuracy'] )
 
-    return model
+    name = 'LittleJohn'
+
+    return model, name
 
 
 def JohnnyBoy( input_shape ) :
@@ -185,4 +190,48 @@ def JohnnyBoy( input_shape ) :
     opt = tf.keras.optimizers.Adam()
     model.compile( optimizer = opt, loss = "categorical_crossentropy", metrics = ['accuracy'] )
 
-    return model
+    name = 'JohnnyBoy'
+
+    return model, name
+
+
+def BigJohnTuned( input_shape ) :
+
+    # Creazione del Modello CNN
+
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Conv1D(   filters = 64, kernel_size = 15, activation='relu', padding = "same", input_shape = input_shape, 
+                                        kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
+    model.add(tf.keras.layers.AveragePooling1D( pool_size= 8, strides = 5, padding = "same") )
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Conv1D(   filters = 64, kernel_size = 10, activation='relu', padding = "same" , 
+                                        kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
+    model.add(tf.keras.layers.AveragePooling1D( pool_size = 8, strides = 5, padding = "same") )
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Flatten())
+
+    model.add(tf.keras.layers.Dense(    512, kernel_initializer = tf.keras.initializers.HeNormal() ,activation='relu', 
+                                        kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
+    model.add(tf.keras.layers.Dropout(.1))
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Dense(    288, kernel_initializer = tf.keras.initializers.HeNormal() ,activation = 'relu', 
+                                        kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
+    model.add(tf.keras.layers.Dropout(.2)) 
+    model.add(tf.keras.layers.BatchNormalization())
+
+    model.add(tf.keras.layers.Dense(    128, kernel_initializer = tf.keras.initializers.HeNormal() ,activation = 'relu', 
+                                        kernel_regularizer = tf.keras.regularizers.l2(1.e-4)))
+
+    model.add(tf.keras.layers.Dense( 8 , activation = 'softmax',  kernel_regularizer = tf.keras.regularizers.l2(1.e-4) ))
+    
+    #model.summary()
+
+    opt = tf.keras.optimizers.Adam()
+    model.compile( optimizer = opt, loss = "categorical_crossentropy", metrics = ['accuracy'] )
+
+    name = 'BigJohnTuned'
+
+    return model, name

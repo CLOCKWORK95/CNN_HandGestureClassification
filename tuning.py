@@ -6,20 +6,23 @@ from sklearn.model_selection import StratifiedKFold, cross_val_score, GridSearch
 from models import tuning_model
 import numpy as np
 from utilities import csv_readnstack, csv_to_onehot, data_augmentation
+import time
+
 
 
 def hyperparams_tuning( train_x, train_y, input_shape ):
 
     # Tuning degli iperparametri in Cross Validation
     model = KerasClassifier( build_fn = tuning_model, verbose = 1 )
+    
     batch_size = [ 256 ]
     opt = ['adam']
-    neurons = [ 256, 512 ]
+    neurons = [ 128, 256, 512 ]
     exponent = [ 1, 2 ]
     numf = [ 64, 32 ]
-    ksize = [ 10 ]
-    epochs = [ 80 ]
-    act = ['tanh', 'relu']
+    ksize = [ 15, 10 ]
+    epochs = [ 200 ]
+    act = ['relu']
     input_shape = [ input_shape ]
 
     param_grid = dict(  
@@ -37,7 +40,7 @@ def hyperparams_tuning( train_x, train_y, input_shape ):
                                 n_jobs = -1,
                                 cv = 5)
 
-    callback = tf.keras.callbacks.EarlyStopping( monitor = 'accuracy', restore_best_weights = True, patience = 20 )
+    callback = tf.keras.callbacks.EarlyStopping( monitor = 'val_loss', restore_best_weights = True, patience = 30 )
 
     grid_result = grid.fit( train_x, train_y, callbacks = [callback] )
     # Stampa del best Score dalla Grid Search
@@ -60,7 +63,12 @@ def tune_hyper_parameters():
     # Input Shape settings ( dimensione vettore, numero di canali )
     input_shape = ( dataset_values.shape[1], dataset_values.shape[2] )
 
+    
+    start_time = time.time()
+
     hyperparams_tuning( dataset_values, dataset_labels, input_shape )
+
+    print("\n\n\n--- %s seconds ---" % (time.time() - start_time))
 
 
 

@@ -22,6 +22,7 @@ def csv_readnstack( paths ) :
     dataset = np.dstack( dataset )
     return dataset
 
+
 def csv_to_onehot( path ) :
     # @params : csv file pathname
     labels = pd.read_csv( path, header = None, dtype = 'float64' )
@@ -30,6 +31,7 @@ def csv_to_onehot( path ) :
     labels = tf.keras.utils.to_categorical( labels, num_classes = n_classes )
     return labels
 
+
 def scaling( dataset ):
     # Scaling dei dati secondo tecninca Robust Scaling
     scalers = {}
@@ -37,6 +39,7 @@ def scaling( dataset ):
         scalers[i] = RobustScaler()   
         dataset[:, i, :] = scalers[i].fit_transform(dataset[:, i, :]) 
     return dataset
+
 
 def scalings( datasets ):
     # Scaling dei dati secondo tecninca Robust Scaling
@@ -83,11 +86,9 @@ def data_augmentation():
             newdataset_z.append( newrowz )
     
     newdataset = [ newdataset_x, newdataset_y, newdataset_z]
-    newdataset = np.dstack( newdataset )
-    newlabels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
+    new_dataset = np.dstack( newdataset )
+    new_labels = tf.keras.utils.to_categorical( newlabels, num_classes = 8 )
 
-    #print( newdataset)
-    #print( newlabels )
     
-    return newdataset, newlabels
+    return new_dataset, new_labels, newlabels
 

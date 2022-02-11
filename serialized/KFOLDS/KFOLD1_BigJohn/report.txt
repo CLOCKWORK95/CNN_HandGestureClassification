@@ -1,0 +1,2 @@
+Mean Accuracy : 0.96679282
+Mean Loss : 0.1984745129942894
