@@ -9,8 +9,8 @@ from sklearn.preprocessing import LabelEncoder
 import threading
 import time
 
-EPOCHS = 3
-K = 3
+EPOCHS = 200
+K = 10
 
 # K-Fold Cross-Validation variables
 TRAINERS = []
